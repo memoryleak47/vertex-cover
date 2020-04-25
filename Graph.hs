@@ -4,25 +4,32 @@ import System.Random
 data Graph = Graph [[Bool]]
     deriving Show
 
-edge :: Graph -> Int -> Int -> Bool
-edge (Graph l) x y | x == y = False
-edge (Graph l) x y = (l !! (max x y)) !! (min x y)
-
-edges :: Graph -> [(Int,Int)]
-edges g = filter (\(x,y) -> edge g x y) $ flatten $ map (\x -> map (\y -> (x,y)) [0..x-1]) [0..(len g)-1]
+iter :: Int -> [(Int,Int)]
+iter i = flatten $ map (\x -> map (\y -> (x,y)) [0..x-1]) [0..i-1]
 
 flatten :: [[(Int,Int)]] -> [(Int,Int)]
 flatten [] = []
 flatten (x:xs) = x ++ flatten xs
 
+-- new_graph n f returns a graph with n vertices, where f x y == True <-> x has edge to y
+new_graph :: Int -> ((Int,Int) -> Bool) -> Graph
+new_graph n f = Graph $ map (\x -> map (\y -> f (x,y)) [0..x-1]) [0..n-1]
+
+edge :: Graph -> Int -> Int -> Bool
+edge (Graph l) x y | x == y = False
+edge (Graph l) x y = (l !! (max x y)) !! (min x y)
+
+edges :: Graph -> [(Int,Int)]
+edges g = filter (\(x,y) -> edge g x y) $ iter (len g)
+
 len :: Graph -> Int
 len (Graph l) = length l
 
 empty :: Int -> Graph
-empty i = Graph (map (\x -> map (\y -> False) [0..x-1]) [0..i-1])
+empty n = new_graph n (\(x,y) -> False)
 
 clique :: Int -> Graph
-clique i = Graph (map (\x -> map (\y -> True) [0..x-1]) [0..i-1])
+clique n = new_graph n (\(x,y) -> True)
 
 purerandomlist :: StdGen -> Int -> [Bool]
 purerandomlist g x = take x $ randoms g
