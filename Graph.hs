@@ -11,9 +11,15 @@ flatten :: [[(Int,Int)]] -> [(Int,Int)]
 flatten [] = []
 flatten (x:xs) = x ++ flatten xs
 
--- new_graph n f returns a graph with n vertices, where f x y == True <-> x has edge to y
-new_graph :: Int -> ((Int,Int) -> Bool) -> Graph
-new_graph n f = Graph $ map (\x -> map (\y -> f (x,y)) [0..x-1]) [0..n-1]
+order :: (Int,Int) -> (Int,Int)
+order (x,y) = (max x y, min x y)
+
+-- graph_by_func n f returns a graph with n vertices, where f x y == True <-> x has edge to y
+graph_by_func :: Int -> ((Int,Int) -> Bool) -> Graph
+graph_by_func n f = Graph $ map (\x -> map (\y -> f (x,y)) [0..x-1]) [0..n-1]
+
+graph_by_set :: Int -> [(Int,Int)] -> Graph
+graph_by_set n e = graph_by_func n (\i -> elem i (map order e))
 
 edge :: Graph -> Int -> Int -> Bool
 edge (Graph l) x y | x == y = False
@@ -26,10 +32,10 @@ len :: Graph -> Int
 len (Graph l) = length l
 
 empty :: Int -> Graph
-empty n = new_graph n (\(x,y) -> False)
+empty n = graph_by_func n (\(x,y) -> False)
 
 clique :: Int -> Graph
-clique n = new_graph n (\(x,y) -> True)
+clique n = graph_by_func n (\(x,y) -> True)
 
 purerandomlist :: StdGen -> Int -> [Bool]
 purerandomlist g x = take x $ randoms g
