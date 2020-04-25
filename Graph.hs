@@ -19,3 +19,9 @@ clique i = Graph (map (\x -> map (\y -> True) [0..x-1]) [0..i-1])
 
 randbool :: IO Bool 
 randbool = randomRIO (False, True)
+
+-- randomgraph :: Int -> IO Graph
+-- randomgraph i = return $ Graph (map (\x -> map (\y -> True) [0..x-1]) [0..i-1])
+
+-- main = randomgraph 4 >> show >> putStrLn
+
